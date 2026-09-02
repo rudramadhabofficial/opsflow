@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+enum TaskStatus {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model User {
+  id            String        @id @default(uuid())
+  email         String        @unique
+  password      String
+  name          String
+  role          Role          @default(EMPLOYEE)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  assignedTasks Task[]        @relation("AssignedTasks")
+  createdTasks  Task[]        @relation("CreatedTasks")
+  taskHistories TaskHistory[]
+}
+
+model Task {
+  id          String         @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus     @default(OPEN)
+  priority    Priority       @default(MEDIUM)
+  deadline    DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  assigneeId  String?
+  assignee    User?          @relation("AssignedTasks", fields: [assigneeId], references: [id])
+  
+  creatorId   String
+  creator     User           @relation("CreatedTasks", fields: [creatorId], references: [id])
+
+  histories   TaskHistory[]
+  evidence    TaskEvidence[]
+}
+
+model TaskHistory {
+  id          String       @id @default(uuid())
+  taskId      String
+  task        Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  oldStatus   TaskStatus?
+  newStatus   TaskStatus
+  
+  changedById String
+  changedBy   User         @relation(fields: [changedById], references: [id])
+  
+  changedAt   DateTime     @default(now())
+}
+
+model TaskEvidence {
+  id          String       @id @default(uuid())
+  taskId      String
+  task        Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  imageUrl    String
+  uploadedAt  DateTime     @default(now())
+}
