@@ -1,8 +1,3 @@
-Yes. For your GitHub repository, I would put the **“How it works” and workflows near the top**, before the long technical documentation. That way a recruiter can understand OpsFlow in under a minute, then dive into the implementation details if interested.
-
-Replace your entire existing `README.md` with this:
-
-````markdown
 # OpsFlow
 
 > A full-stack task and field operations management platform for assigning work, tracking progress, managing workloads, and coordinating operational activities across web and mobile applications.
